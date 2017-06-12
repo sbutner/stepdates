@@ -17,12 +17,19 @@ import secret
 #print table as csv
 
 
+def walkThroughFolders(root):
+    for path in os.listdir(root):
+        if validateFolder(root+path):
+            #do something
+    return #returnvalue
 
-
-
+def validateFolder(path):
+    if os.path.isdir(path):
+        return not set(os.listdir(path)).isdisjoint(secret.VALID_SUBFOLDERS)
+    
 
 def getTime(path, mode="c"):
-    if (mode = "c" or mode = "created"):
+    if (mode == "c" or mode == "created"):
         date = time.gmtime(os.path.getctime(path))
     else:
         date = time.gmtime(os.path.getmtime(path))
