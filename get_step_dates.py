@@ -18,15 +18,18 @@ import secret
 
 
 def walkThroughFolders(root):
+#walking through at first
+#just adding up and returning number
+#of valid dirs
+    validDirs = 0
     for path in os.listdir(root):
         if validateFolder(root+path):
-            #do something
-    return #returnvalue
+            validDirs += 1
+    return validDirs
 
 def validateFolder(path):
     if os.path.isdir(path):
-        return not set(os.listdir(path)).isdisjoint(secret.VALID_SUBFOLDERS)
-    
+        return VALID_SUBFOLDER in os.listdir(path)    
 
 def getTime(path, mode="c"):
     if (mode == "c" or mode == "created"):
