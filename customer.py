@@ -34,14 +34,14 @@ class Customer(object):
         date_string = month+'/'+str(day)+'/'+year
         return date_string
     
-    @staticmethod
-    def _walk_through_customer(directory):
+    @classmethod
+    def _walk_through_customer(cls, directory):
         '''Wrapper for os.walk to handle the expected structures and return a
         flat list of paths to feed into date extraction functions'''
         if (os.path.split(directory)[1].lower() == 'ireview'):
             paths = []
             for pt, dn, fn in os.walk(directory):
-                if len(os.path.split(pt)[1]) > 5:
+                if len(os.path.split(pt)[1]) > 5 and cls._check_folder(pt):    
                     paths.append(pt)
             return paths
         else:
@@ -51,18 +51,31 @@ class Customer(object):
                     paths.append(pt+'\\'+fi)
             return paths
 
+    @staticmethod
+    def _check_folder(folder):
+        try:
+            int(os.path.split(folder)[1][0:1])
+            return True
+        except ValueError:
+            return False
+            
+
     def make_table(self):
         customer_tree = self._compile_customer()
         customer_tree = self._unroll_customer(customer_tree)
         out = []
         for key, val in enumerate(customer_tree):
-            _ = [self.customer_name, val]
-            for i in ['first_stage', 'third_stage', 'fourth_stage']:
-                try:
-                    _.append(customer_tree[val][i])
-                except KeyError:
-                    _.append('NA')
-            out.append(_)
+            try:
+                int(val[0])
+                _ = [self.customer_name, val]
+                for i in ['first_stage', 'third_stage', 'fourth_stage']:
+                    try:
+                        _.append(customer_tree[val][i])
+                    except KeyError:
+                        _.append('NA')
+                out.append(_)
+            except ValueError:
+                pass
         return out
     
     def _compile_customer(self):
@@ -87,7 +100,7 @@ class Customer(object):
     def _get_first_stage(self):
         path = self.review_path+'prior months'
         files = self._walk_through_customer(path)
-        dates = {(os.path.split(file)[1][0:5], self._get_time(file, mode="c")) for file in files}
+        dates = {(os.path.split(file)[1][0:5], self._get_time(file, mode="c")) for file in files if self.is_review_sheet(file, "First")}
         return dates
 
     def _get_third_stage(self):
